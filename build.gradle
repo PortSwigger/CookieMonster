@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.baegmon'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'net.portswigger.burp.extensions:montoya-api:+'
+    implementation 'com.opencsv:opencsv:5.9'
+}
+
+tasks.register('copyFiles', Copy) {
+    from 'Open-Cookie-Database/open-cookie-database.csv'
+    into 'src/main/resources'
+}
+
+jar {
+    dependsOn tasks.copyFiles
+
+    from('src/main/resources') {
+        include '**/*.*'
+    }
+
+    from {
+        duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
